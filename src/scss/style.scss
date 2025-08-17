@@ -1,0 +1,17 @@
+@import './variables'; // Import des variables SCSS
+@import './color-palette.scss'; // Documentation de la palette de couleurs
+@import 'vuetify/styles.scss';
+@import './layout/container';
+@import './layout/sidebar';
+@import './layout/topbar';
+@import './components/VButtons';
+@import './components/VCard';
+@import './components/VField';
+@import './components/VInput';
+@import './components/VNavigationDrawer';
+@import './components/VShadow';
+@import './components/VTable'; 
+@import './components/VChip';
+@import 'layout/text';
+//@import '@/../node_modules/vue3-perfect-scrollbar/dist/style.css';
+

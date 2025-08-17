@@ -1,0 +1,36 @@
+//
+// global
+
+.v-btn-group .v-btn {
+    height: inherit !important; 
+}
+
+.v-btn-group {
+    border-color: rgb(var(--v-theme-borderColor)) !important; 
+}
+
+.v-btn--size-large{
+    font-size: 14px;
+}
+
+.btn-white{
+    background-color: rgb(var(--v-theme-surface)) !important;
+    padding:10px 15px;
+    &:hover{
+        background-color: rgb(var(--v-theme-primary)) !important; 
+        color: #fff !important;
+    }
+}
+
+/* .v-btn__content {
+    display: flex;
+    grid-area: content;
+    justify-content: space-between;
+    white-space: nowrap;
+}
+.v-btn__content, .v-btn__prepend, .v-btn__append
+ {
+    align-items: center;
+    display: flex;
+    transition: transform, opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+} */

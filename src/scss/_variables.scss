@@ -1,0 +1,174 @@
+@use 'sass:math'; // math est utilisé pour les opérations mathématiques. Par exemple, pour les calculs de tailles, marges, etc.
+@use 'sass:map'; //ca sert à manipuler les maps/ Par exemple, pour ajouter ou supprimer des propriétés
+@use 'sass:meta'; // pour obtenir des informations sur les modules. Par exemple, pour vérifier si un module a été importé
+@use 'vuetify/lib/styles/tools/functions' as *; // Import des fonctions de Vuetify
+
+// Custom Variables
+// colors - Palette principale
+$coral-red: #FF6D5F !default;     // Rouge corail
+$olive-green: #549445 !default;    // Vert olive doux
+$navy-blue: #002444 !default;      // Bleu nuit
+$white: #FFFFFF !default;          // Blanc
+$platinum: #F4F4F5 !default;       // Platinum
+
+// Dimensions spécifiques
+$app-max-width: 1440px !default;
+/* $app-content-height: 5813px !default; */
+
+// cards
+$card-title-size: 18px !default;
+$body-font-family: "Manrope", sans-serif !default; 
+$border-radius-root: 8px;
+$btn-letter-spacing: 0 !default;
+// Global Shadowsss
+$box-shadow: 0px 1px 4px 0px rgba(133, 146, 173, 0.2);
+
+// Global Radius as per breakeven point
+
+@forward 'vuetify/settings' with (
+    $color-pack: false !default,
+    // Global font size and border radius
+    $font-size-root: 1rem,
+    $border-radius-root: $border-radius-root,
+    $body-font-family: $body-font-family,
+    $heading-font-family: $body-font-family !default, // !defaut sert à définir une valeur par défaut si elle n'est pas déjà définie
+    // 👉 Typography
+    $typography:
+        (
+            // TITRE 1: MANROPE Regular TAILLE: 56pX / 64pX. Espacement: -4%
+            'h1': (
+                'size': 3.5rem, // 56px
+                'weight': 400, // Regular
+                'line-height': 4rem, // 64px
+                'font-family': inherit,
+                'letter-spacing': -0.04em // -4%
+            ),
+            // TITRE 2: MANROPE Regular TAILLE: 40pX / 48pX. Espacement: -4%
+            'h2': (
+                'size': 2.5rem, // 40px
+                'weight': 400, // Regular
+                'line-height': 3rem, // 48px
+                'font-family': inherit,
+                'letter-spacing': -0.04em // -4%
+            ),
+            // TITRE 3: MANROPE Medium TAILLE: 36pX / 42px. Espacement: -4%
+            'h3': (
+                'size': 2.25rem, // 36px
+                'weight': 500, // Medium
+                'line-height': 2.625rem, // 42px
+                'font-family': inherit,
+                'letter-spacing': -0.04em // -4%
+            ),
+            // TITRE 4: MANROPE Bold TAILLE: 28pX / 36pX. Espacement: -2%
+            'h4': (
+                'size': 1.75rem, // 28px
+                'weight': 700, // Bold
+                'line-height': 2.25rem, // 36px
+                'font-family': inherit,
+                'letter-spacing': -0.02em // -2%
+            ),
+            // SOUS-TITRE: MANROPE regular TAILLE: 24pX / 32pX. Espacement: -4%
+            'h5': (
+                'size': 1.5rem, // 24px
+                'weight': 400, // Regular
+                'line-height': 2rem, // 32px
+                'font-family': inherit,
+                'letter-spacing': -0.04em // -4%
+            ),
+            //16px
+            'h6': (
+                'size': 1rem,
+                'weight': 600,
+                'line-height': 1.2rem,
+                'font-family': inherit
+            ),
+            //15px
+            'subtitle-1': (
+                'size': 0.94rem,
+                'weight': 400,
+                'line-height': 1.1rem,
+                'font-family': inherit
+            ),
+            //13px
+            'subtitle-2': (
+                'size': 0.81rem,
+                'weight': 400,
+                'line-height': 1rem,
+                'font-family': inherit
+            ),
+            //14px
+            'body-1': (
+                'size': 0.875rem,
+                'weight': 400,
+                'font-family': inherit,
+                'letter-spacing':0rem
+            ),
+            //12px
+            'body-2': (
+                'size': 0.75rem,
+                'weight': 400,
+                'font-family': inherit,
+                'letter-spacing':0rem
+            ),
+            //13px
+            'button': (
+                'size': 0.81rem,
+                'weight': 600,
+                'font-family': inherit,
+                'text-transform': capitalize
+            ),
+            //14px
+            'caption': (
+                'size':0.875rem,
+                'weight': 400,
+                'font-family': inherit,
+                'letter-spacing':0rem
+            ),
+            //12px
+            'overline': (
+                'size': 0.75rem,
+                'weight': 400,
+                'font-family': inherit,
+                'letter-spacing':0rem
+            )
+        )
+        !default,
+    // 👉 Button
+    $button-border-radius: 30px !default,
+    $button-text-letter-spacing: 0 !default,
+    $button-text-transform: capitalize,
+    $button-elevation: (
+        'default': 0,
+        'hover': 4,
+        'active': 8
+    )
+    !default,
+
+    // 👉 Tooltip
+    $tooltip-background-color: #212121 !default,
+    $tooltip-text-color: rgb(var(--v-theme-on-primary)) !default,
+    $tooltip-font-size: 0.75rem !default,
+    $tooltip-border-radius: 4px !default,
+    $tooltip-padding: 4px 8px !default,
+
+    // 👉 Rounded
+    $rounded:
+        (
+            0: 0,
+            'sm': $border-radius-root - 4,
+            'xs': $border-radius-root + 1,
+            'md': $border-radius-root + 4,
+            'lg': $border-radius-root * 2,
+            'xl': $border-radius-root * 3,
+            'pill': 9999px,
+            'circle': 50%
+        ),
+
+    // 👉 Card
+    $card-elevation: 10 !default,
+    $card-title-line-height: 1.6 !default,
+    $card-text-padding: 24px !default,
+    $card-item-padding: 24px 24px !default,
+    $card-actions-padding: 10px 24px 24px !default,
+    $card-subtitle-opacity: 1 !default,
+);

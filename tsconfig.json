@@ -1,0 +1,21 @@
+{
+    "extends": "@vue/tsconfig/tsconfig.web.json",
+    "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+    "exclude": ["src/**/*.js"], // Exclude compiled JS files from input (en francais ça veut dire exclure les fichiers JS compilés de l'entrée)
+    "compilerOptions": {
+        "importsNotUsedAsValues": "remove",
+        "preserveValueImports": false,
+        "verbatimModuleSyntax": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./src/*"]
+        },
+        "allowJs": true,
+        "lib": ["es2017", "dom", "dom.iterable", "es6"]
+    },
+    "references": [
+        {
+            "path": "./tsconfig.vite-config.json"
+        }
+    ]
+}

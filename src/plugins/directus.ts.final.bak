@@ -1,0 +1,493 @@
+import { createDirectus, rest, readItems, readItem, createItem, updateItem, deleteItem, uploadFiles, staticToken } from '@directus/sdk';
+
+// Types pour les collections
+export interface Article {
+  id?: string;
+  status?: 'draft' | 'published' | 'archived';
+  sort?: number;
+  user_created?: string;
+  date_created?: string;
+  user_updated?: string;
+  date_updated?: string;
+  title: string;
+  slug?: string;
+  excerpt?: string;
+  content: string;
+  featured_image?: string;
+  image?: string;
+  category?: string | Category;
+  tags?: string[] | Tag[] | null | any;
+  author?: string | Author;
+  published_date?: string;
+  reading_time?: number;
+  views?: number;
+  is_featured?: boolean;
+  seo_title?: string;
+  seo_description?: string;
+}
+
+export interface Category {
+  id?: string;
+  status?: 'published' | 'draft' | 'archived';
+  name: string;
+  slug?: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+  sort?: number;
+}
+
+export interface Tag {
+  id?: string;
+  name: string;
+  slug?: string;
+  color?: string;
+}
+
+export interface Author {
+  id?: string;
+  status?: 'published' | 'draft' | 'archived';
+  first_name: string;
+  last_name: string;
+  email?: string;
+  bio?: string;
+  avatar?: string;
+  social_links?: any;
+}
+
+// Schéma complet
+export interface Schema {
+  articles: Article[];
+  categories: Category[];
+  tags: Tag[];
+  authors: Author[];
+}
+
+// Configuration du client Directus
+const directusUrl = import.meta.env.VITE_DIRECTUS_URL || 'http://localhost:8055';
+
+export const directus = createDirectus<Schema>(directusUrl).with(rest());
+
+// Token administrateur (à remplacer par votre token)
+const adminToken = import.meta.env.VITE_DIRECTUS_TOKEN;
+if (adminToken) {
+  directus.with(staticToken(adminToken));
+}
+
+// Services pour les articles
+export class ArticleService {
+  
+  // Récupérer tous les articles
+  static async getAllArticles(filters?: any) {
+    try {
+      console.log('Tentative de récupération des articles depuis:', directusUrl);
+      
+      // Vérifier si l'API est accessible
+      try {
+        const testResponse = await fetch(`${directusUrl}/server/ping`);
+        console.log('Test de connexion au serveur Directus:', testResponse.ok ? 'OK' : 'Échec', testResponse.status);
+        if (!testResponse.ok) {
+          console.warn('Le serveur Directus est peut-être inaccessible');
+        }
+      } catch (pingError) {
+        console.error('Impossible de contacter le serveur Directus:', pingError);
+      }
+      
+      // Requête simple sans relations d'abord
+      console.log('Préparation de la requête articles avec filtre:', filters);
+      const articles = await directus.request(
+        readItems('articles', {
+          fields: [
+            'id', 'title', 'slug', 'excerpt', 'content', 'featured_image', 'image', 
+            'category', 'author', 'published_date', 'reading_time', 'views', 'status',
+            { tags: ['id', 'name', 'slug', 'color'] }
+          ],
+          filter: {
+            status: { _eq: 'published' },
+            ...filters
+          },
+          sort: ['-published_date'],
+          limit: 50
+        })
+      );
+      
+      console.log('Articles récupérés:', articles);
+      
+      // Vérifier si les données sont dans le bon format
+      if (!Array.isArray(articles)) {
+        console.warn('Format de réponse inattendu:', articles);
+        // Si ce n'est pas un tableau, essayer d'extraire les données
+        if (articles && typeof articles === 'object' && 'data' in articles) {
+          const extractedData = (articles as any).data;
+          if (Array.isArray(extractedData)) {
+            console.log('Données extraites avec succès du format:', extractedData);
+            return extractedData;
+          }
+        }
+        // Si on ne peut pas extraire de données, renvoyer un tableau vide pour éviter les erreurs
+        return [];
+      }
+      
+      return articles;
+    } catch (error) {
+      console.error('Erreur détaillée lors de la récupération des articles:', error);
+      
+      // Tentative alternative avec fetch
+      try {
+        console.log('Tentative alternative avec fetch API');
+        const response = await fetch(`${directusUrl}/items/articles`);
+        const result = await response.json();
+        console.log('Résultat alternatif:', result);
+        
+        if (result && result.data && Array.isArray(result.data)) {
+          console.log('Récupération alternative réussie');
+          return result.data;
+        }
+      } catch (fetchError) {
+        console.error('Échec de la récupération alternative:', fetchError);
+      }
+      
+      throw error;
+    }
+  }
+
+  // Récupérer un article par ID
+  static async getArticleById(id: string) {
+    try {
+      console.log('Récupération de l\'article avec ID:', id);
+      const article = await directus.request(
+        readItem('articles', id, {
+          fields: [
+            'id', 'title', 'slug', 'excerpt', 'content', 'featured_image', 'image', 
+            'category', 'author', 'published_date', 'reading_time', 'views', 'status',
+            { tags: ['id', 'name', 'slug', 'color'] }
+          ]
+        })
+      );
+      console.log('Article récupéré:', article);
+      return article;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'article:', error);
+      throw error;
+    }
+  }
+
+  // Récupérer un article par slug
+  static async getArticleBySlug(slug: string) {
+    try {
+      console.log('Récupération de l\'article avec slug:', slug);
+      const articles = await directus.request(
+        readItems('articles', {
+          fields: [
+            'id', 'title', 'slug', 'excerpt', 'content', 'featured_image', 'image', 
+            'category', 'author', 'published_date', 'reading_time', 'views', 'status',
+            { tags: ['id', 'name', 'slug', 'color'] }
+          ],
+          filter: {
+            slug: { _eq: slug },
+            status: { _eq: 'published' }
+          },
+          limit: 1
+        })
+      );
+      console.log('Article trouvé par slug:', articles[0]);
+      return articles[0] || null;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de l\'article par slug:', error);
+      throw error;
+    }
+  }
+
+  // Récupérer les articles par catégorie
+  static async getArticlesByCategory(categorySlug: string) {
+    try {
+      const articles = await directus.request(
+        readItems('articles', {
+          fields: [
+            '*',
+            { 
+              category: ['name', 'slug', 'color'],
+              author: ['first_name', 'last_name', 'avatar']
+            }
+          ],
+          filter: {
+            status: { _eq: 'published' },
+            'category.slug': { _eq: categorySlug }
+          },
+          sort: ['-published_date']
+        })
+      );
+      return articles;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des articles par catégorie:', error);
+      throw error;
+    }
+  }
+
+  // Créer un nouvel article
+  static async createArticle(article: Partial<Article>) {
+    try {
+      const newArticle = await directus.request(
+        createItem('articles', article)
+      );
+      return newArticle;
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'article:', error);
+      throw error;
+    }
+  }
+
+  // Mettre à jour un article
+  static async updateArticle(id: string, article: Partial<Article>) {
+    try {
+      const updatedArticle = await directus.request(
+        updateItem('articles', id, article)
+      );
+      return updatedArticle;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de l\'article:', error);
+      throw error;
+    }
+  }
+
+  // Supprimer un article
+  static async deleteArticle(id: string) {
+    try {
+      await directus.request(deleteItem('articles', id));
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'article:', error);
+      throw error;
+    }
+  }
+
+  // Incrémenter les vues
+  static async incrementViews(id: string) {
+    try {
+      const article = await this.getArticleById(id);
+      const views = (article.views || 0) + 1;
+      await this.updateArticle(id, { views });
+      return views;
+    } catch (error) {
+      console.error('Erreur lors de l\'incrémentation des vues:', error);
+      throw error;
+    }
+  }
+}
+
+// Services pour les catégories
+export class CategoryService {
+  static async getAllCategories() {
+    try {
+      const categories = await directus.request(
+        readItems('categories', {
+          filter: { status: { _eq: 'published' } },
+          sort: ['sort', 'name']
+        })
+      );
+      return categories;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des catégories:', error);
+      throw error;
+    }
+  }
+
+  static async getCategoryBySlug(slug: string) {
+    try {
+      const categories = await directus.request(
+        readItems('categories', {
+          filter: {
+            slug: { _eq: slug },
+            status: { _eq: 'published' }
+          },
+          limit: 1
+        })
+      );
+      return categories[0] || null;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la catégorie:', error);
+      throw error;
+    }
+  }
+
+  static async createCategory(data: Partial<Category>) {
+    try {
+      const newCategory = await directus.request(
+        createItem('categories', data)
+      );
+      return newCategory;
+    } catch (error) {
+      console.error('Erreur lors de la création de la catégorie:', error);
+      throw error;
+    }
+  }
+
+  static async updateCategory(id: string, data: Partial<Category>) {
+    try {
+      const updatedCategory = await directus.request(
+        updateItem('categories', id, data)
+      );
+      return updatedCategory;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la catégorie:', error);
+      throw error;
+    }
+  }
+
+  static async deleteCategory(id: string) {
+    try {
+      await directus.request(deleteItem('categories', id));
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la catégorie:', error);
+      throw error;
+    }
+  }
+}
+
+// Services pour les tags
+export class TagService {
+  static async getAllTags() {
+    try {
+      const tags = await directus.request(
+        readItems('tags', {
+          sort: ['name']
+        })
+      );
+      return tags;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des tags:', error);
+      throw error;
+    }
+  }
+
+  static async getTagBySlug(slug: string) {
+    try {
+      const tags = await directus.request(
+        readItems('tags', {
+          filter: {
+            slug: { _eq: slug }
+          },
+          limit: 1
+        })
+      );
+      return tags[0] || null;
+    } catch (error) {
+      console.error('Erreur lors de la récupération du tag:', error);
+      throw error;
+    }
+  }
+
+  static async createTag(data: Partial<Tag>) {
+    try {
+      const newTag = await directus.request(
+        createItem('tags', data)
+      );
+      return newTag;
+    } catch (error) {
+      console.error('Erreur lors de la création du tag:', error);
+      throw error;
+    }
+  }
+
+  static async updateTag(id: string, data: Partial<Tag>) {
+    try {
+      const updatedTag = await directus.request(
+        updateItem('tags', id, data)
+      );
+      return updatedTag;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du tag:', error);
+      throw error;
+    }
+  }
+
+  static async deleteTag(id: string) {
+    try {
+      await directus.request(deleteItem('tags', id));
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la suppression du tag:', error);
+      throw error;
+    }
+  }
+  
+  static async getArticlesByTag(tagSlug: string) {
+    try {
+      const articles = await directus.request(
+        readItems('articles', {
+          fields: [
+            '*',
+            { 
+              category: ['name', 'slug', 'color'],
+              author: ['first_name', 'last_name', 'avatar'],
+              tags: ['id', 'name', 'slug', 'color']
+            }
+          ],
+          filter: {
+            status: { _eq: 'published' },
+            'tags.slug': { _eq: tagSlug }
+          },
+          sort: ['-published_date']
+        })
+      );
+      return articles;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des articles par tag:', error);
+      throw error;
+    }
+  }
+}
+
+// Services pour les auteurs
+export class AuthorService {
+  static async getAllAuthors() {
+    try {
+      const authors = await directus.request(
+        readItems('authors', {
+          filter: { status: { _eq: 'published' } }
+        })
+      );
+      return authors;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des auteurs:', error);
+      throw error;
+    }
+  }
+
+  static async createAuthor(data: Partial<Author>) {
+    try {
+      const newAuthor = await directus.request(
+        createItem('authors', data)
+      );
+      return newAuthor;
+    } catch (error) {
+      console.error('Erreur lors de la création de l\'auteur:', error);
+      throw error;
+    }
+  }
+
+  static async updateAuthor(id: string, data: Partial<Author>) {
+    try {
+      const updatedAuthor = await directus.request(
+        updateItem('authors', id, data)
+      );
+      return updatedAuthor;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de l\'auteur:', error);
+      throw error;
+    }
+  }
+
+  static async deleteAuthor(id: string) {
+    try {
+      await directus.request(deleteItem('authors', id));
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la suppression de l\'auteur:', error);
+      throw error;
+    }
+  }
+}
+
+export default directus;

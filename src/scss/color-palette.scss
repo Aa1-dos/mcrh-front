@@ -1,0 +1,95 @@
+/*
+ * Palette de couleurs du projet
+ * ==========================
+ *
+ * Ce fichier documente toutes les couleurs utilisées dans le projet.
+ * Il sert de référence pour l'équipe de développement.
+ */
+
+/**
+ * COULEURS PRINCIPALES
+ * -------------------
+ */
+
+/* Rouge corail */
+/* HEX: #FF6D5F */
+/* RGB: 255, 109, 95 */
+/* CMYK: 0, 57, 63, 0 */
+/* HSL: 6°, 100%, 69% */
+
+/* Vert olive doux */
+/* HEX: #549445 */
+/* RGB: 84, 148, 69 */
+/* CMYK: 43, 0, 53, 42 */
+/* HSL: 109°, 36%, 43% */
+
+/* Bleu nuit */
+/* HEX: #002444 */
+/* RGB: 0, 36, 68 */
+/* CMYK: 100, 47, 0, 73 */
+/* HSL: 210°, 100%, 13% */
+
+/* Blanc */
+/* HEX: #FFFFFF */
+/* RGB: 255, 255, 255 */
+/* CMYK: 0, 0, 0, 0 */
+/* HSL: 0°, 0%, 100% */
+
+/* Platinum */
+/* HEX: #F4F4F5 */
+/* RGB: 244, 244, 245 */
+/* CMYK: 0, 0, 0, 4 */
+/* HSL: 0°, 0%, 95% */
+
+/**
+ * UTILISATION RECOMMANDÉE
+ * ---------------------
+ */
+
+/*
+ * Bleu nuit (#002444): Couleur principale, utilisée pour les éléments importants, les en-têtes, 
+ *                      et les accents principaux. Représente la confiance et la stabilité.
+ * 
+ * Vert olive (#549445): Utilisé pour les éléments secondaires, les boutons d'action secondaires, 
+ *                       et les indicateurs de succès. Représente la croissance et l'harmonie.
+ * 
+ * Rouge corail (#FF6D5F): Utilisé pour les alertes, les erreurs, et les actions importantes 
+ *                        qui nécessitent une attention. Représente l'énergie et l'urgence.
+ * 
+ * Blanc (#FFFFFF): Utilisé pour les fonds principaux et le texte sur fond foncé.
+ *                 Représente la clarté et la simplicité.
+ * 
+ * Platinum (#F4F4F5): Utilisé pour les fonds secondaires, les bordures légères, 
+ *                    et les zones d'emphase subtile. Représente la subtilité et l'élégance.
+ */
+
+/**
+ * CLASSES CSS DISPONIBLES
+ * --------------------
+ */
+
+/*
+ * .bg-primary    -> Fond bleu nuit
+ * .bg-secondary  -> Fond vert olive
+ * .bg-accent     -> Fond rouge corail
+ * .bg-white      -> Fond blanc
+ * .bg-platinum   -> Fond platinum
+ * 
+ * .text-primary   -> Texte bleu nuit
+ * .text-secondary -> Texte vert olive
+ * .textPrimary    -> Texte bleu nuit (alternative)
+ * .textSecondary  -> Texte vert olive (alternative)
+ */
+
+/**
+ * VARIABLES SCSS
+ * ------------
+ */
+
+/*
+ * $navy-blue   -> #002444 (Bleu nuit)
+ * $olive-green -> #549445 (Vert olive)
+ * $coral-red   -> #FF6D5F (Rouge corail)
+ * $white       -> #FFFFFF (Blanc)
+ * $platinum    -> #F4F4F5 (Platinum)
+ */

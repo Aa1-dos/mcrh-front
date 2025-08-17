@@ -1,0 +1,12 @@
+{
+    "extends": "@vue/tsconfig/tsconfig.node.json",
+    "include": ["vite.config.*"],
+    "compilerOptions": {
+        "importsNotUsedAsValues": "remove",
+        "preserveValueImports": false,
+        "composite": true,
+        "allowJs": true,
+        "types": ["node"],
+        "verbatimModuleSyntax": true
+    }
+}
